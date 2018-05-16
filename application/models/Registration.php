@@ -33,7 +33,7 @@ class Registration extends CI_Model
       if($q->num_rows()>0)
       {
           $userInfo = $this->getInfoUser($user['mail']);
-          $token = $this->getToken($userInfo['id']);
+          $token = $this->getToken($userInfo['id_user']);
           $resp = array(
               'exist'=> true,
               'token' => $token['key'],
@@ -49,7 +49,7 @@ class Registration extends CI_Model
 
     function getInfoUser($mail)
     {
-        $sql = $this->db->select(array('id','firstname', 'lastname', 'mail', 'country', 'phone', 'birth', 'language'))
+        $sql = $this->db->select(array('id_user','firstname', 'lastname', 'mail'))
             ->where('mail', $mail)
             ->get_compiled_select('users', FALSE);
 

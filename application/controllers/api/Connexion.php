@@ -37,6 +37,7 @@ class Connexion extends REST_Controller {
             'mail'=>$this->post("email"),
             'password'=>hash("sha256",$this->post("password")));
 
+
         $resp = $this->registration->connexion($user);
 
         if($resp['exist'] == true)

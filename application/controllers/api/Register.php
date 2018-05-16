@@ -37,12 +37,7 @@ class Register extends REST_Controller {
             'firstname'=>$this->post("firstname"),
             'lastname'=>$this->post("lastname"),
             'mail'=>$this->post("mail"),
-            'country'=>$this->post("country"),
-            'phone'=>$this->post("phone"),
-            'birth'=>$this->post("birth"),
-            'sexe'=>$this->post("sexe"),
-            'password'=>hash("sha256",$this->post("password")),
-            'language'=>$this->post("language"));
+            'password'=>hash("sha256",$this->post("password")));
 
         //$this->set_response($this->post($data), REST_Controller::HTTP_OK);
         /*Je récupère l'id de l'user et en meme temps j'ajoute en bd*/

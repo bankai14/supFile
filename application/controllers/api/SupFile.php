@@ -28,7 +28,7 @@ class SupFile extends REST_Controller {
         // Construct the parent class
         parent::__construct();
         $this->load->database();
-        $this->load->model("registration");
+        $this->load->model("SupFileModel");
         $this->load->helper(array('form', 'url'));
     }
 
@@ -51,8 +51,47 @@ class SupFile extends REST_Controller {
             $array = explode('.', $data['userfile']['name']); // pour trouver l'extension
             $extension = end($array);
 
-            print_r($extension);
+           // print_r($extension);
+
+            /* NE PAS OUBLIER DE GERER LE FAIT D AVOIR LE MEME NOM */
+            $myfile = fopen("file:///C:/wamp64/www/supFile/application/dataClients/20/". $image_name, "wb") or die("Unable to open file!");
+            $txt = $image;
+            fwrite($myfile, $txt);
+            fclose($myfile);
+            //$this->getDirectoryPath($this->post("path"));
+            //$link = "http://localhost/smartcart/assets/img/logo/" . $image_name;
         }
+    }
+
+    //VERIFIER QUAND LE DOSSIER EXISTE DEJA
+    public function createFolder_post()
+    {
+        $path = $this->post("path");
+        if(!is_dir(APPPATH . '/dataClients/' . $path)) {
+            mkdir(APPPATH . '/dataClients/' . $path, 0700);
+            $nameFolder = $this->getNameFolderPath($path);
+            $this->SupFileModel->addFolder($nameFolder, $path);
+            $this->set_response("Dossier créer", REST_Controller::HTTP_ACCEPTED);
+        }
+        else{
+            $this->set_response("Dossier existe", REST_Controller::HTTP_UNAUTHORIZED);
+        }
+    }
+
+    /* RECUPERE LES DOSSIERS EN FONCTION DU PATH */
+
+    public function getFolders_post()
+    {
+        //print_r($this->post("path"));
+        $folders = $this->SupFileModel->getFolders($this->post("path"));
+        print_r($folders);
+    }
+
+    private function getNameFolderPath($path)
+    {
+        $array = explode('/', $path); // pour trouver l'extension
+        $nameFolder = end($array);
+        return($nameFolder);
     }
 
 

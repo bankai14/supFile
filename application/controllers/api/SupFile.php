@@ -19,7 +19,7 @@ use Restserver\Libraries\REST_Controller;
  * @category        Controller
  * @author          Yassine Zitouni
  * @license         MIT
- * @link            www.kallam.fr
+ * @link            Supfile.fr
  */
 class SupFile extends REST_Controller {
 
@@ -67,10 +67,11 @@ class SupFile extends REST_Controller {
     public function createFolder_post()
     {
         $path = $this->post("path");
+        $id_user = $this->post("id_user");
         if(!is_dir(APPPATH . '/dataClients/' . $path)) {
             mkdir(APPPATH . '/dataClients/' . $path, 0700);
             $nameFolder = $this->getNameFolderPath($path);
-            $this->SupFileModel->addFolder($nameFolder, $path);
+            $this->SupFileModel->addFolder($id_user, $nameFolder, $pathLink);
             $this->set_response("Dossier créer", REST_Controller::HTTP_ACCEPTED);
         }
         else{
@@ -92,6 +93,35 @@ class SupFile extends REST_Controller {
         $array = explode('/', $path); // pour trouver l'extension
         $nameFolder = end($array);
         return($nameFolder);
+    }
+
+    /* Helper Methods */
+
+    private function _generate_key()
+    {
+        do
+        {
+            // Generate a random salt
+            $salt = base_convert(bin2hex($this->security->get_random_bytes(64)), 16, 36);
+
+            // If an error occurred, then fall back to the previous method
+            if ($salt === FALSE)
+            {
+                $salt = hash('sha256', time() . mt_rand());
+            }
+
+            $new_key = substr($salt, 0, config_item('rest_key_length'));
+        }
+        while ($this->_key_exists($new_key));
+
+        return $new_key;
+    }
+
+    private function _key_exists($key)
+    {
+        return $this->rest->db
+                ->where(config_item('rest_key_column'), $key)
+                ->count_all_results(config_item('rest_keys_table')) > 0;
     }
 
 

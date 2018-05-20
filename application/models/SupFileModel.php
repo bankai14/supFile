@@ -9,9 +9,10 @@ class SupFileModel extends CI_Model
   }
 
   // Pour inscrire l'user dans la base
-  function addFolder($name, $path)
+  function addFolder($id_user,$name, $path)
   {
       $data = array(
+          'id_user'=> $id_user,
           'name'=> $name,
           'path' => $path);
 

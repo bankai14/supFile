@@ -48,6 +48,7 @@ class Register extends REST_Controller {
         $this->createUserKey($userId);
 
         mkdir(APPPATH . '/dataClients/' . (strval($userId)), 0700);
+        $this->SupFileModel->addFolder($userId, "home", "home", 0); // on créer un dossier home en BD
     }
 
     public function index_get()

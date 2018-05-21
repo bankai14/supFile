@@ -67,7 +67,7 @@ class SupFile extends REST_Controller {
      * Créer un fichier
      *
      * @access public
-     * @post path ( ex: 19/yas/toto ), locate = (08okkgk4w480wocgwogc4wkcssgsocg0s8cg488o), id_user
+     * @post path ( ex: 19/ ), locate = (home/), id_user (19)
      * @return void
      */
 
@@ -75,6 +75,7 @@ class SupFile extends REST_Controller {
     public function createFile_post()
     {
         $path = $this->post("path");
+        $id_user = $this->post("id_user");
         $locate = $this->post("locate");
 
         $data = $_FILES;
@@ -92,36 +93,39 @@ class SupFile extends REST_Controller {
             {
                 $this->set_response("Dossier existe pas", REST_Controller::HTTP_UNAUTHORIZED);
             }
-            else{
+            else {
 
                 $id_folder = $this->SupFileModel->getIdDirectory($locate);
 
-                $image = file_get_contents($data['userfile']['tmp_name']); // il fallait pas mettre de addslashes
-                $image_name = addslashes($data['userfile']['name']);
-                $image_size = getimagesize($data['userfile']['tmp_name']);
-                $array = explode('.', $data['userfile']['name']); // pour trouver l'extension
-                $extension = end($array);
+                if ($id_folder != NULL) {
+                    $image = file_get_contents($data['userfile']['tmp_name']); // il fallait pas mettre de addslashes
+                    $image_name = addslashes($data['userfile']['name']);
+                    //$image_size = getimagesize($data['userfile']['tmp_name']);
+                    $array = explode('.', $data['userfile']['name']); // pour trouver l'extension
+                    $extension = end($array);
 
-                // print_r($extension);
+                    /* NE PAS OUBLIER DE GERER LE FAIT D AVOIR LE MEME NOM */
+                    $myfile = fopen("file:///C:/wamp64/www/supFile/application/dataClients/" . $id_user . "/files/" .
+                        $image_name, "wb") or die("Unable to open file!");
+                    $txt = $image;
+                    fwrite($myfile, $txt);
+                    fclose($myfile);
 
-                /* NE PAS OUBLIER DE GERER LE FAIT D AVOIR LE MEME NOM */
-                $myfile = fopen("file:///C:/wamp64/www/supFile/application/dataClients/" . $path. $image_name, "wb") or die("Unable to open file!");
-                $txt = $image;
-                fwrite($myfile, $txt);
-                fclose($myfile);
+                    $data = array(
+                        'id_folder' => $id_folder,
+                        'name' => $array[0],
+                        'ext' => $extension);
 
-                $data = array(
-                    'id_folder'=> $id_folder,
-                    'name'=>  $array[0],
-                    'path'=> $path,
-                    'ext' => $extension);
+                    $this->SupFileModel->addFile($data);
 
-                $this->SupFileModel->addFile($data);
-
-                //$this->getDirectoryPath($this->post("path"));
-                //$link = "http://localhost/smartcart/assets/img/logo/" . $image_name;
-                //print_r("id_folder = " . $id_folder . " name = " . $array[0] . " path = " . $path . " ext = " . $extension);
-                $this->set_response("Fichier créer", REST_Controller::HTTP_ACCEPTED);
+                    //$this->getDirectoryPath($this->post("path"));
+                    //$link = "http://localhost/smartcart/assets/img/logo/" . $image_name;
+                    //print_r("id_folder = " . $id_folder . " name = " . $array[0] . " path = " . $path . " ext = " . $extension);
+                    $this->set_response("Fichier créer", REST_Controller::HTTP_ACCEPTED);
+                }
+                else{
+                    $this->set_response("Dossier existe pas", REST_Controller::HTTP_UNAUTHORIZED);
+                }
             }
 
         }
@@ -133,6 +137,7 @@ class SupFile extends REST_Controller {
      *
      * @access public
      * @post path ( ex: 19/yas/toto ), locate = (08okkgk4w480wocgwogc4wkcssgsocg0s8cg488o), id_user
+     * @indication ( il faut pas de slash a la fin du path)
      * @return void
      */
 
@@ -143,16 +148,17 @@ class SupFile extends REST_Controller {
         $locate = $this->post("locate");
         $id_user = $this->post("id_user");
         $pathLink = $this->_generate_key();
-        if(!is_dir(APPPATH . '/dataClients/' . $path)) {
+        $idLocate = $this->SupFileModel->getIdDirectory($locate);
+        print_r($idLocate);
+        if(!is_dir(APPPATH . '/dataClients/' . $path) && $idLocate != NULL) {
             mkdir(APPPATH . '/dataClients/' . $path, 0700);
-            $idLocate = $this->SupFileModel->getIdDirectory($locate);
+            var_dump($path);
             $nameFolder = $this->getNameFolderPath($path);
             $this->SupFileModel->addFolder($id_user, $nameFolder, $pathLink, $idLocate);
             $this->set_response("Dossier créer", REST_Controller::HTTP_ACCEPTED);
-            print_r($idLocate);
         }
         else{
-            $this->set_response("Dossier existe", REST_Controller::HTTP_UNAUTHORIZED);
+            $this->set_response("Dossier existe ou destination incorect", REST_Controller::HTTP_UNAUTHORIZED);
         }
     }
 
@@ -173,6 +179,22 @@ class SupFile extends REST_Controller {
     }
 
     /**
+     * Récupération des fichiers dans le repertoire courant
+     *
+     * @access public
+     * @post path ( 08okkgk4w480wocgwogc4wkcssgsocg0s8cg488o )
+     * @return void
+     */
+    /* RECUPERE LES FICHIER EN FONCTION DU PATH */
+
+    public function getFiles_post()
+    {
+        $folders = $this->SupFileModel->getFolders($this->post("path"));
+        print_r($folders);
+    }
+
+
+    /**
      * Récupération du nom du dossier à partir d'un chemin
      *
      * @access private
@@ -184,6 +206,7 @@ class SupFile extends REST_Controller {
     {
         $array = explode('/', $path); // pour trouver l'extension
         $nameFolder = end($array);
+        var_dump($nameFolder);
         return($nameFolder);
     }
 

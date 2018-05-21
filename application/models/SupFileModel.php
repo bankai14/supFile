@@ -37,13 +37,32 @@ class SupFileModel extends CI_Model
 
   function getIdDirectory($locate)
   {
-      $this->db->select(array('id_folder'))
+      $request = $this->db->select(array('id_folder'))
           ->where('path', $locate)
           ->get_compiled_select('folders', FALSE);
 
       $idLocate = $this->db->get()->result_array();
-      return $idLocate[0]['id_folder'];
+
+      if (empty($idLocate)) {
+          return (null);
+      }
+      else{
+          return $idLocate[0]['id_folder'];
+      }
+
   }
+
+    /*function userExist($id)
+    {
+        $this->db->where('username',$username);
+        $this->db->where('password',sha1($pass));
+        $q = $this->db->get('register');
+        if($q->num_rows()>0)
+        {
+            return true;
+        }
+        return 0;
+    }*/
 
 
 }

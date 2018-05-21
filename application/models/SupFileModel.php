@@ -35,6 +35,16 @@ class SupFileModel extends CI_Model
       return $data;
   }
 
+    function getFiles($id_folder)
+    {
+        $this->db->select(array('name', 'code', 'ext'))
+            ->where('id_folder', $id_folder)
+            ->get_compiled_select('datafile', FALSE);
+
+        $data = $this->db->get()->result_array();
+        return $data;
+    }
+
   function getIdDirectory($locate)
   {
       $request = $this->db->select(array('id_folder'))
@@ -50,6 +60,13 @@ class SupFileModel extends CI_Model
           return $idLocate[0]['id_folder'];
       }
 
+  }
+
+  function renameFolder($locate, $rename)
+  {
+      $this->db->set('name', $rename);
+      $this->db->where('path', $locate);
+      $this->db->update('folders');
   }
 
     /*function userExist($id)

@@ -23,10 +23,14 @@ use Restserver\Libraries\REST_Controller;
  */
 class SupFile extends REST_Controller {
 
+    private $filePath;
+
     function __construct()
     {
         // Construct the parent class
         parent::__construct();
+
+        $this->filePath = 'file:///C:/wamp64/www/supFile/application/dataClients/';
         $this->load->database();
         $this->load->model("SupFileModel");
         $this->load->helper(array('form', 'url'));
@@ -98,6 +102,7 @@ class SupFile extends REST_Controller {
                 $id_folder = $this->SupFileModel->getIdDirectory($locate);
 
                 if ($id_folder != NULL) {
+                    $code = $this->_generate_key();
                     $image = file_get_contents($data['userfile']['tmp_name']); // il fallait pas mettre de addslashes
                     $image_name = addslashes($data['userfile']['name']);
                     //$image_size = getimagesize($data['userfile']['tmp_name']);
@@ -106,7 +111,7 @@ class SupFile extends REST_Controller {
 
                     /* NE PAS OUBLIER DE GERER LE FAIT D AVOIR LE MEME NOM */
                     $myfile = fopen("file:///C:/wamp64/www/supFile/application/dataClients/" . $id_user . "/files/" .
-                        $image_name, "wb") or die("Unable to open file!");
+                        $code . '.' . $extension, "wb") or die("Unable to open file!");
                     $txt = $image;
                     fwrite($myfile, $txt);
                     fclose($myfile);
@@ -114,6 +119,7 @@ class SupFile extends REST_Controller {
                     $data = array(
                         'id_folder' => $id_folder,
                         'name' => $array[0],
+                        'code' => $code,
                         'ext' => $extension);
 
                     $this->SupFileModel->addFile($data);
@@ -189,8 +195,38 @@ class SupFile extends REST_Controller {
 
     public function getFiles_post()
     {
-        $folders = $this->SupFileModel->getFolders($this->post("path"));
-        print_r($folders);
+        $locate = $this->post("locate");
+
+
+        $id_folder = $this->SupFileModel->getIdDirectory($locate);
+
+        $files = $this->SupFileModel->getFiles($id_folder);
+        print_r($files);
+    }
+
+    /**
+     * Renomer un dossier
+     *
+     * @access private
+     * @post code ( 08okkgk4w480wocgwogc4wkcssgsocg0s8cg488o ), rename(toto)
+     * @return void
+     */
+
+    public function renameFolder_post()
+    {
+        $locate = $this->post("locate");
+        $path = $this->post("path");
+        $rename = $this->post("rename");
+
+
+        $fileName = $this->SupFileModel->getFolders($locate);
+
+        //print_r($path . $rename);
+        //print_r($this->filePath . $path . $fileName[0]['name']);
+        rename($this->filePath . $path . $fileName[0]['name'], $this->filePath . $path . $fileName[0]['name'] .$path . $rename);
+
+
+        //$this->SupFileModel->renameFolder($locate, $rename);
     }
 
 
@@ -209,6 +245,8 @@ class SupFile extends REST_Controller {
         var_dump($nameFolder);
         return($nameFolder);
     }
+
+
 
     /* Helper Methods */
 

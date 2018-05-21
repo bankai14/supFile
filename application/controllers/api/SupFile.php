@@ -63,22 +63,106 @@ class SupFile extends REST_Controller {
         }
     }
 
+    /**
+     * Créer un fichier
+     *
+     * @access public
+     * @post path ( ex: 19/yas/toto ), locate = (08okkgk4w480wocgwogc4wkcssgsocg0s8cg488o), id_user
+     * @return void
+     */
+
+    //VERIFIER QUAND LE DOSSIER EXISTE DEJA
+    public function createFile_post()
+    {
+        $path = $this->post("path");
+        $locate = $this->post("locate");
+
+        $data = $_FILES;
+
+
+        $file = $data['userfile']['tmp_name'];
+
+        if (!isset($file))
+        {
+            echo "Please select an image";
+        }
+        else
+        {
+            if(!is_dir(APPPATH . '/dataClients/' . $path))
+            {
+                $this->set_response("Dossier existe pas", REST_Controller::HTTP_UNAUTHORIZED);
+            }
+            else{
+
+                $id_folder = $this->SupFileModel->getIdDirectory($locate);
+
+                $image = file_get_contents($data['userfile']['tmp_name']); // il fallait pas mettre de addslashes
+                $image_name = addslashes($data['userfile']['name']);
+                $image_size = getimagesize($data['userfile']['tmp_name']);
+                $array = explode('.', $data['userfile']['name']); // pour trouver l'extension
+                $extension = end($array);
+
+                // print_r($extension);
+
+                /* NE PAS OUBLIER DE GERER LE FAIT D AVOIR LE MEME NOM */
+                $myfile = fopen("file:///C:/wamp64/www/supFile/application/dataClients/" . $path. $image_name, "wb") or die("Unable to open file!");
+                $txt = $image;
+                fwrite($myfile, $txt);
+                fclose($myfile);
+
+                $data = array(
+                    'id_folder'=> $id_folder,
+                    'name'=>  $array[0],
+                    'path'=> $path,
+                    'ext' => $extension);
+
+                $this->SupFileModel->addFile($data);
+
+                //$this->getDirectoryPath($this->post("path"));
+                //$link = "http://localhost/smartcart/assets/img/logo/" . $image_name;
+                //print_r("id_folder = " . $id_folder . " name = " . $array[0] . " path = " . $path . " ext = " . $extension);
+                $this->set_response("Fichier créer", REST_Controller::HTTP_ACCEPTED);
+            }
+
+        }
+
+    }
+
+    /**
+     * Créer un dossier
+     *
+     * @access public
+     * @post path ( ex: 19/yas/toto ), locate = (08okkgk4w480wocgwogc4wkcssgsocg0s8cg488o), id_user
+     * @return void
+     */
+
     //VERIFIER QUAND LE DOSSIER EXISTE DEJA
     public function createFolder_post()
     {
         $path = $this->post("path");
+        $locate = $this->post("locate");
         $id_user = $this->post("id_user");
+        $pathLink = $this->_generate_key();
         if(!is_dir(APPPATH . '/dataClients/' . $path)) {
             mkdir(APPPATH . '/dataClients/' . $path, 0700);
+            $idLocate = $this->SupFileModel->getIdDirectory($locate);
             $nameFolder = $this->getNameFolderPath($path);
-            $this->SupFileModel->addFolder($id_user, $nameFolder, $pathLink);
+            $this->SupFileModel->addFolder($id_user, $nameFolder, $pathLink, $idLocate);
             $this->set_response("Dossier créer", REST_Controller::HTTP_ACCEPTED);
+            print_r($idLocate);
         }
         else{
             $this->set_response("Dossier existe", REST_Controller::HTTP_UNAUTHORIZED);
         }
     }
 
+    /**
+     * Récupération des dossiers dans le repertoire courant
+     *
+     * @access public
+     * @post path ( 08okkgk4w480wocgwogc4wkcssgsocg0s8cg488o )
+     * @return void
+     */
     /* RECUPERE LES DOSSIERS EN FONCTION DU PATH */
 
     public function getFolders_post()
@@ -87,6 +171,14 @@ class SupFile extends REST_Controller {
         $folders = $this->SupFileModel->getFolders($this->post("path"));
         print_r($folders);
     }
+
+    /**
+     * Récupération du nom du dossier à partir d'un chemin
+     *
+     * @access private
+     * @indacation on parse les slash en récupérant le dernier
+     * @return void
+     */
 
     private function getNameFolderPath($path)
     {

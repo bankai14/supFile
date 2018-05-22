@@ -33,7 +33,7 @@ class SupFile extends REST_Controller {
         $this->filePath = 'file:///C:/wamp64/www/supFile/application/dataClients/';
         $this->load->database();
         $this->load->model("SupFileModel");
-        $this->load->helper(array('form', 'url'));
+        $this->load->helper(array('form', 'url', 'download', 'zip'));
     }
 
     public function index_post()
@@ -208,7 +208,7 @@ class SupFile extends REST_Controller {
      * Renomer un dossier
      *
      * @access private
-     * @post code ( 08okkgk4w480wocgwogc4wkcssgsocg0s8cg488o ), rename(toto)
+     * @post locate ( 08okkgk4w480wocgwogc4wkcssgsocg0s8cg488o ), path(19/), rename(benzema)
      * @return void
      */
 
@@ -221,12 +221,91 @@ class SupFile extends REST_Controller {
 
         $fileName = $this->SupFileModel->getFolders($locate);
 
-        //print_r($path . $rename);
-        //print_r($this->filePath . $path . $fileName[0]['name']);
-        rename($this->filePath . $path . $fileName[0]['name'], $this->filePath . $path . $fileName[0]['name'] .$path . $rename);
+        $root = getcwd().DIRECTORY_SEPARATOR . "application\dataClients\\";
+
+        rename($root . str_replace('/','\\',$path) . $fileName[0]['name'],
+            $root . str_replace('/','\\',$path)  . $rename);
+
+        $request = $this->SupFileModel->renameFolder($locate, $rename);
+
+        if ($request == true)
+        {
+            $this->set_response("Dossier renomer", REST_Controller::HTTP_ACCEPTED);
+        }
+        else{
+            $this->set_response("Erreur", REST_Controller::HTTP_UNAUTHORIZED);
+        }
+    }
+
+    /**
+     * Renomer un fichier
+     *
+     * @access private
+     * @post locate ( g4kkwoko4o84w80404cgkcwgw8w48owgg8c808cs ), path(19/files/), rename(benzema)
+     * @return void
+     */
+
+    public function renameFile_post()
+    {
+        $locate = $this->post("locate");
+        $path = $this->post("path");
+        $rename = $this->post("rename");
 
 
-        //$this->SupFileModel->renameFolder($locate, $rename);
+        $request = $this->SupFileModel->renameFile($locate, $rename);
+        if ($request == true)
+        {
+            $this->set_response("Fichier renomer", REST_Controller::HTTP_ACCEPTED);
+        }
+        else{
+            $this->set_response("Erreur", REST_Controller::HTTP_UNAUTHORIZED);
+        }
+    }
+
+    /**
+     * Télécharger un fichier
+     *
+     * @access private
+     * @post locate ( g4kkwoko4o84w80404cgkcwgw8w48owgg8c808cs ), path(19/files/)
+     * @return void
+     */
+
+    public function downloadFile_post()
+    {
+        $path = $this->post("path");
+        $locate = $this->post("locate");
+
+        $extFile = $this->SupFileModel->getExt($locate);
+
+
+        $fileDownload = getcwd().DIRECTORY_SEPARATOR . "application\dataClients\\" .
+            str_replace('/','\\',$path) . 'files\\' .
+        $locate . '.' . $extFile;
+
+        force_download($fileDownload, NULL);
+    }
+
+    /**
+     * Télécharger un dossier
+     *
+     * @access private
+     * @post locate ( g4kkwoko4o84w80404cgkcwgw8w48owgg8c808cs ), path(19/files/)
+     * @return void
+     */
+
+    public function downloadFolder_post()
+    {
+        $path = $this->post("path");
+        $locate = $this->post("locate");
+
+        $extFile = $this->SupFileModel->getExt($locate);
+
+
+        $fileDownload = getcwd().DIRECTORY_SEPARATOR . "application\dataClients\\" .
+            str_replace('/','\\',$path) . 'files\\' .
+            $locate . '.' . $extFile;
+
+        force_download($fileDownload, NULL);
     }
 
 

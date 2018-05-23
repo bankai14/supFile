@@ -33,7 +33,8 @@ class SupFile extends REST_Controller {
         $this->filePath = 'file:///C:/wamp64/www/supFile/application/dataClients/';
         $this->load->database();
         $this->load->model("SupFileModel");
-        $this->load->helper(array('form', 'url', 'download', 'zip'));
+        $this->load->helper(array('form', 'url', 'download'));
+        $this->load->library('zip');
     }
 
     public function index_post()
@@ -298,14 +299,35 @@ class SupFile extends REST_Controller {
         $path = $this->post("path");
         $locate = $this->post("locate");
 
-        $extFile = $this->SupFileModel->getExt($locate);
+        $fileName = $this->SupFileModel->getFolders($locate);
+        $id_folder = $this->SupFileModel->getIdDirectory($locate);
+
+        $files = $this->SupFileModel->getFiles($id_folder);
+        $folders = $this->SupFileModel->getFoldersOnFolder($id_folder);
 
 
-        $fileDownload = getcwd().DIRECTORY_SEPARATOR . "application\dataClients\\" .
+        $data = array(
+            'files' => $files,
+            'folders' => $folders);
+
+        //mkdir(APPPATH . '/dataClients/' . $path, 0700);
+
+        foreach ($data["folders"] as $dir)
+        {
+            $this->generateDirectory($path, $dir["name"]);
+        }
+
+        var_dump($data);
+        /*$fileDownload = getcwd().DIRECTORY_SEPARATOR . "application\dataClients\\" .
             str_replace('/','\\',$path) . 'files\\' .
             $locate . '.' . $extFile;
 
-        force_download($fileDownload, NULL);
+        force_download($fileDownload, NULL);*/
+    }
+
+    private function generateDirectory($path, $dir)
+    {
+        mkdir(APPPATH . '/dataClients/' . $path . "download/" .$dir, 0700);
     }
 
 

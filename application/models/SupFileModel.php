@@ -25,6 +25,18 @@ class SupFileModel extends CI_Model
         $this->db->insert('datafile', $data);
     }
 
+    // récupère les dossier qui se trouve dans un dossier
+    function getFoldersOnFolder($id_folder)
+    {
+        $this->db->select(array('name', 'path'))
+            ->where('locate', $id_folder)
+            ->get_compiled_select('folders', FALSE);
+
+        $data = $this->db->get()->result_array();
+        return $data;
+    }
+
+    // récupère le nom du dossier grace au path
   function getFolders($path)
   {
       $this->db->select(array('name'))

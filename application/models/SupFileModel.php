@@ -37,10 +37,12 @@ class SupFileModel extends CI_Model
     }
 
     // récupère le nom du dossier grace au path
-  function getFolders($path)
+  function getFolders($id_user, $idFolder)
   {
-      $this->db->select(array('name'))
-          ->where('path', $path)
+      $this->db->select(array('name', 'path
+      '))
+          ->where('id_user', $id_user)
+          ->where('locate', $idFolder)
           ->get_compiled_select('folders', FALSE);
 
       $data = $this->db->get()->result_array();
@@ -77,10 +79,11 @@ class SupFileModel extends CI_Model
         return $data[0]['ext'];
     }
 
-  function getIdDirectory($locate)
+  function getIdDirectory($locate, $id_user)
   {
       $request = $this->db->select(array('id_folder'))
           ->where('path', $locate)
+          ->where('id_user', $id_user)
           ->get_compiled_select('folders', FALSE);
 
       $idLocate = $this->db->get()->result_array();

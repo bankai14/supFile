@@ -28,7 +28,7 @@ class Register extends REST_Controller {
         // Construct the parent class
         parent::__construct();
         $this->load->database();
-        $this->load->model("registration");
+        $this->load->model("SupFileModel");
     }
 
     public function index_post()
@@ -46,6 +46,12 @@ class Register extends REST_Controller {
         $this->registration->isConnected($userId, $this->post("connected"));
         /*Je créer une clée pour l'user*/
         $this->createUserKey($userId);
+
+        $data = array(
+            'id_user'=>$userId,
+            'name'=> "home",
+            'path'=> "home",
+            'locate'=> 0);
 
         mkdir(APPPATH . '/dataClients/' . (strval($userId)), 0700);
         $this->SupFileModel->addFolder($userId, "home", "home", 0); // on créer un dossier home en BD
@@ -71,6 +77,7 @@ class Register extends REST_Controller {
         {
             $this->response([
                 'status' => TRUE,
+                'id_user' => $userId,
                 'key' => $key
             ], REST_Controller::HTTP_CREATED); // CREATED (201) being the HTTP response code
         }

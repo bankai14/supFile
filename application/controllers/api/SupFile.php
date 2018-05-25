@@ -173,16 +173,16 @@ class SupFile extends REST_Controller {
      * Récupération des dossiers dans le repertoire courant
      *
      * @access public
-     * @post path ( 08okkgk4w480wocgwogc4wkcssgsocg0s8cg488o )
+     * @post path ( 08okkgk4w480wocgwogc4wkcssgsocg0s8cg488o ) id_user (19)
      * @return void
      */
-    /* RECUPERE LES DOSSIERS EN FONCTION DU PATH */
 
     public function getFolders_post()
     {
         //print_r($this->post("path"));
-        $folders = $this->SupFileModel->getFolders($this->post("path"));
-        print_r($folders);
+        $idFolder = $this->SupFileModel->getIdDirectory($this->post("path"), $this->post("id_user"));
+        $folders = $this->SupFileModel->getFolders($this->post("id_user"), $idFolder);
+        $this->set_response($folders, REST_Controller::HTTP_ACCEPTED);
     }
 
     /**

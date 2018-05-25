@@ -16,6 +16,12 @@ class Registration extends CI_Model
       return ($userId);
   }
 
+    // Pour inscrire l'user dans la base
+    function homeFolder($data)
+    {
+        $this->db->insert('folders', $data);
+    }
+
   //dire que l'user est co
   function isConnected($userId, $connected)
   {

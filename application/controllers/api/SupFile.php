@@ -155,14 +155,20 @@ class SupFile extends REST_Controller {
         $locate = $this->post("locate");
         $id_user = $this->post("id_user");
         $pathLink = $this->_generate_key();
-        $idLocate = $this->SupFileModel->getIdDirectory($locate);
-        print_r($idLocate);
+        $idLocate = $this->SupFileModel->getIdDirectory($locate, $id_user);
         if(!is_dir(APPPATH . '/dataClients/' . $path) && $idLocate != NULL) {
             mkdir(APPPATH . '/dataClients/' . $path, 0700);
-            var_dump($path);
             $nameFolder = $this->getNameFolderPath($path);
             $this->SupFileModel->addFolder($id_user, $nameFolder, $pathLink, $idLocate);
-            $this->set_response("Dossier créer", REST_Controller::HTTP_ACCEPTED);
+
+            $data = array(
+                'status' => TRUE,
+                'id_user' => $id_user,
+                'nameFolder' => $nameFolder,
+                'pathLink' => $pathLink,
+                'idLocate' => $idLocate);
+
+            $this->set_response($data, REST_Controller::HTTP_ACCEPTED);
         }
         else{
             $this->set_response("Dossier existe ou destination incorect", REST_Controller::HTTP_UNAUTHORIZED);
@@ -179,7 +185,6 @@ class SupFile extends REST_Controller {
 
     public function getFolders_post()
     {
-        //print_r($this->post("path"));
         $idFolder = $this->SupFileModel->getIdDirectory($this->post("path"), $this->post("id_user"));
         $folders = $this->SupFileModel->getFolders($this->post("id_user"), $idFolder);
         $this->set_response($folders, REST_Controller::HTTP_ACCEPTED);
@@ -209,7 +214,7 @@ class SupFile extends REST_Controller {
      * Renomer un dossier
      *
      * @access private
-     * @post locate ( 08okkgk4w480wocgwogc4wkcssgsocg0s8cg488o ), path(19/), rename(benzema)
+     * @post locate ( 08okkgk4w480wocgwogc4wkcssgsocg0s8cg488o ), path(19/), rename(benzema), id_user (19)
      * @return void
      */
 
@@ -218,9 +223,9 @@ class SupFile extends REST_Controller {
         $locate = $this->post("locate");
         $path = $this->post("path");
         $rename = $this->post("rename");
+        $id_user = $this->post("id_user");
 
-
-        $fileName = $this->SupFileModel->getFolders($locate);
+        $fileName = $this->SupFileModel->getFolders($id_user, $locate);
 
         $root = getcwd().DIRECTORY_SEPARATOR . "application\dataClients\\";
 
@@ -343,7 +348,6 @@ class SupFile extends REST_Controller {
     {
         $array = explode('/', $path); // pour trouver l'extension
         $nameFolder = end($array);
-        var_dump($nameFolder);
         return($nameFolder);
     }
 

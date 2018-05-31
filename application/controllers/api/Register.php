@@ -39,7 +39,6 @@ class Register extends REST_Controller {
             'mail'=>$this->post("mail"),
             'password'=>hash("sha256",$this->post("password")));
 
-        //$this->set_response($this->post($data), REST_Controller::HTTP_OK);
         /*Je récupère l'id de l'user et en meme temps j'ajoute en bd*/
         $userId = $this->registration->pushUser($user);
         /*J'ajoute en bd l'etat de connexion de l'utilisateur*/
@@ -54,6 +53,8 @@ class Register extends REST_Controller {
             'locate'=> 0);
 
         mkdir(APPPATH . '/dataClients/' . (strval($userId)), 0700);
+        mkdir(APPPATH . '/dataClients/' . (strval($userId)) . '/files', 0700);
+        mkdir(APPPATH . '/dataClients/' . (strval($userId)) . '/download', 0700);
         $this->SupFileModel->addFolder($userId, "home", "home", 0); // on créer un dossier home en BD
     }
 

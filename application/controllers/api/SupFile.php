@@ -225,7 +225,9 @@ class SupFile extends REST_Controller {
         $rename = $this->post("rename");
         $id_user = $this->post("id_user");
 
-        $fileName = $this->SupFileModel->getFolders($id_user, $locate);
+        $fileName = $this->SupFileModel->nameFolder($id_user, $locate);
+
+        print_r($fileName);
 
         $root = getcwd().DIRECTORY_SEPARATOR . "application\dataClients\\";
 
@@ -261,10 +263,16 @@ class SupFile extends REST_Controller {
         $request = $this->SupFileModel->renameFile($locate, $rename);
         if ($request == true)
         {
-            $this->set_response("Fichier renomer", REST_Controller::HTTP_ACCEPTED);
+            $this->response([
+                'status' => TRUE,
+                'message' => 'Fichier renomer'
+            ], REST_Controller::HTTP_ACCEPTED);
         }
         else{
-            $this->set_response("Erreur", REST_Controller::HTTP_UNAUTHORIZED);
+            $this->response([
+                'status' => FALSE,
+                'message' => 'Erreur'
+            ], REST_Controller::HTTP_UNAUTHORIZED);
         }
     }
 

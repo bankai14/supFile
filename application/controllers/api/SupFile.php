@@ -227,7 +227,6 @@ class SupFile extends REST_Controller {
 
         $fileName = $this->SupFileModel->nameFolder($id_user, $locate);
 
-        print_r($fileName);
 
         $root = getcwd().DIRECTORY_SEPARATOR . "application\dataClients\\";
 
@@ -238,11 +237,16 @@ class SupFile extends REST_Controller {
 
         if ($request == true)
         {
-            $this->set_response("Dossier renomer", REST_Controller::HTTP_ACCEPTED);
+            $this->response([
+                'status' => TRUE,
+                'message' => 'Dossier renomer'
+            ], REST_Controller::HTTP_ACCEPTED);
         }
         else{
-            $this->set_response("Erreur", REST_Controller::HTTP_UNAUTHORIZED);
-        }
+            $this->response([
+                'status' => FALSE,
+                'message' => 'Erreur'
+            ], REST_Controller::HTTP_UNAUTHORIZED);        }
     }
 
     /**

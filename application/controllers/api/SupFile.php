@@ -68,6 +68,21 @@ class SupFile extends REST_Controller {
         }
     }
 
+    public function test_post()
+    {
+        header('Access-Control-Allow-Origin: *');
+        header("Access-Control-Allow-Methods: GET, OPTIONS");
+        header("Access-Control-Allow-Headers: Content-Type, Content-Length, Accept-Encoding");
+
+        if ( "OPTIONS" === $_SERVER['REQUEST_METHOD'] ) {
+            die();
+        }
+
+        $data = $_FILES;
+
+        $this->set_response($data, REST_Controller::HTTP_ACCEPTED);
+    }
+
     /**
      * Créer un fichier
      *
@@ -96,11 +111,12 @@ class SupFile extends REST_Controller {
         {
             if(!is_dir(APPPATH . '/dataClients/' . $path))
             {
+                print_r("lol");
                 $this->set_response("Dossier existe pas", REST_Controller::HTTP_UNAUTHORIZED);
             }
             else {
 
-                $id_folder = $this->SupFileModel->getIdDirectory($locate);
+                $id_folder = $this->SupFileModel->getIdDirectory($locate, $id_user);
 
                 if ($id_folder != NULL) {
                     $code = $this->_generate_key();
@@ -131,6 +147,7 @@ class SupFile extends REST_Controller {
                     $this->set_response("Fichier créer", REST_Controller::HTTP_ACCEPTED);
                 }
                 else{
+                    print_r("lol");
                     $this->set_response("Dossier existe pas", REST_Controller::HTTP_UNAUTHORIZED);
                 }
             }

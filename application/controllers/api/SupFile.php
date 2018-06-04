@@ -136,6 +136,7 @@ class SupFile extends REST_Controller {
                     $data = array(
                         'id_folder' => $id_folder,
                         'name' => $array[0],
+                        'link' => "http://localhost/supFile/application/dataClients/47/files/" . $code .'.' . $extension,
                         'code' => $code,
                         'ext' => $extension);
 

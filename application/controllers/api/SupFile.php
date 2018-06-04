@@ -218,13 +218,13 @@ class SupFile extends REST_Controller {
 
     public function getFiles_post()
     {
-        $locate = $this->post("locate");
+        $locate = $this->post("path");
+        $id_user = $this->post("id_user");
 
-
-        $id_folder = $this->SupFileModel->getIdDirectory($locate);
+        $id_folder = $this->SupFileModel->getIdDirectory($locate,$id_user);
 
         $files = $this->SupFileModel->getFiles($id_folder);
-        print_r($files);
+        $this->set_response($files, REST_Controller::HTTP_ACCEPTED);
     }
 
     /**

@@ -318,11 +318,11 @@ class SupFile extends REST_Controller {
             str_replace('/','\\',$path) .
         $locate . '.' . $extFile;
 
-        $data = force_download($fileDownload, NULL);
-        $this->response([
-            'status' => TRUE,
-            'message' => $data
-        ], REST_Controller::HTTP_ACCEPTED);
+        //$data = force_download($fileDownload, NULL);
+        $file_content = file_get_contents($fileDownload);
+
+        print_r($file_content);
+
         //print_r($fileDownload);
     }
 

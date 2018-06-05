@@ -64,7 +64,7 @@ class SupFileModel extends CI_Model
 
     function getFiles($id_folder)
     {
-        $this->db->select(array('name', 'code', 'ext', 'link'))
+        $this->db->select(array('name', 'code', 'ext', 'link', 'code'))
             ->where('id_folder', $id_folder)
             ->get_compiled_select('datafile', FALSE);
 

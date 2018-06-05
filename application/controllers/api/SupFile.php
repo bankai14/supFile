@@ -315,10 +315,15 @@ class SupFile extends REST_Controller {
 
 
         $fileDownload = getcwd().DIRECTORY_SEPARATOR . "application\dataClients\\" .
-            str_replace('/','\\',$path) . 'files\\' .
+            str_replace('/','\\',$path) .
         $locate . '.' . $extFile;
 
-        force_download($fileDownload, NULL);
+        $data = force_download($fileDownload, NULL);
+        $this->response([
+            'status' => TRUE,
+            'message' => $data
+        ], REST_Controller::HTTP_ACCEPTED);
+        //print_r($fileDownload);
     }
 
     /**
@@ -358,6 +363,11 @@ class SupFile extends REST_Controller {
             $locate . '.' . $extFile;
 
         force_download($fileDownload, NULL);*/
+    }
+
+    public function share_folder()
+    {
+
     }
 
     private function generateDirectory($path, $dir)

@@ -402,6 +402,33 @@ class SupFile extends REST_Controller {
         ], REST_Controller::HTTP_ACCEPTED);
     }
 
+    private function delTree($dir) {
+        $files = array_diff(scandir($dir), array('.','..'));
+        foreach ($files as $file) {
+            (is_dir("$dir/$file")) ? $this->delTree("$dir/$file") : unlink("$dir/$file");
+        }
+        rmdir($dir);
+    }
+
+    public function deleteFolder_post()
+    {
+        $code = $this->post("code");
+        $this->SupFileModel->deleteFolder($code);
+
+
+        $path =  $this->post("path");
+
+        $this->delTree(APPPATH . '/dataClients/' . str_replace('/', '\\', $path) . '\\' . $this->post("folder"));
+        //rmdir();
+
+        //$this->delTree(APPPATH . '/dataClients/' . $this->post("path"));
+
+        $this->response([
+            'status' => TRUE,
+            'message' => 'Dossier supprimer'
+        ], REST_Controller::HTTP_ACCEPTED);
+    }
+
     private function generateDirectory($path, $dir)
     {
         mkdir(APPPATH . '/dataClients/' . $path . "download/" .$dir, 0700);

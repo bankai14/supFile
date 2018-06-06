@@ -130,6 +130,12 @@ class SupFileModel extends CI_Model
         $this->db->delete('datafile');
     }
 
+    function deleteFolder($code)
+    {
+        $this->db->where('path', $code);
+        $this->db->delete('folders');
+    }
+
   function getIdDirectory($locate, $id_user)
   {
       $request = $this->db->select(array('id_folder'))

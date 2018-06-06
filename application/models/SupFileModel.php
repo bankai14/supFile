@@ -92,6 +92,44 @@ class SupFileModel extends CI_Model
         return $data[0]['ext'];
     }
 
+    function getLinkImage($code)
+    {
+        $this->db->select(array('link'))
+            ->where('code', $code)
+            ->get_compiled_select('datafile', FALSE);
+
+        $data = $this->db->get()->result_array();
+        return $data[0]['link'];
+    }
+
+    function checkfolderExist($name)
+    {
+        $this->db->where('name', $name);
+        $q = $this->db->get('folders');
+        if($q->num_rows()>0)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    function checkfileExist($name)
+    {
+        $this->db->where('name', $name);
+        $q = $this->db->get('datafile');
+        if($q->num_rows()>0)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    function deleteFile($code)
+    {
+        $this->db->where('code', $code);
+        $this->db->delete('datafile');
+    }
+
   function getIdDirectory($locate, $id_user)
   {
       $request = $this->db->select(array('id_folder'))

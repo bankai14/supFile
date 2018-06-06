@@ -126,6 +126,12 @@ class SupFile extends REST_Controller {
                     $array = explode('.', $data['userfile']['name']); // pour trouver l'extension
                     $extension = end($array);
 
+                    $exist = $this->SupFileModel->checkfileExist($array[0]);
+
+                    if ($exist == true)
+                    {
+                        $this->response('Existe déja', REST_Controller::HTTP_UNAUTHORIZED);
+                    }
                     /* NE PAS OUBLIER DE GERER LE FAIT D AVOIR LE MEME NOM */
                     $myfile = fopen("file:///C:/wamp64/www/supFile/application/dataClients/" . $id_user . "/files/" .
                         $code . '.' . $extension, "wb") or die("Unable to open file!");
@@ -243,28 +249,35 @@ class SupFile extends REST_Controller {
         $rename = $this->post("rename");
         $id_user = $this->post("id_user");
 
-        $fileName = $this->SupFileModel->nameFolder($id_user, $locate);
+        $exist = $this->SupFileModel->checkfolderExist($rename);
 
 
-        $root = getcwd().DIRECTORY_SEPARATOR . "application\dataClients\\";
-
-        rename($root . str_replace('/','\\',$path) . $fileName[0]['name'],
-            $root . str_replace('/','\\',$path)  . $rename);
-
-        $request = $this->SupFileModel->renameFolder($locate, $rename);
-
-        if ($request == true)
+       if ($exist == true)
         {
-            $this->response([
-                'status' => TRUE,
-                'message' => 'Dossier renomer'
-            ], REST_Controller::HTTP_ACCEPTED);
+            $this->response('Existe déja', REST_Controller::HTTP_UNAUTHORIZED);
         }
-        else{
-            $this->response([
-                'status' => FALSE,
-                'message' => 'Erreur'
-            ], REST_Controller::HTTP_UNAUTHORIZED);        }
+        else {
+            $fileName = $this->SupFileModel->nameFolder($id_user, $locate);
+
+            $root = getcwd() . DIRECTORY_SEPARATOR . "application\dataClients\\";
+
+            rename($root . str_replace('/', '\\', $path) . $fileName[0]['name'],
+                $root . str_replace('/', '\\', $path) . $rename);
+
+            $request = $this->SupFileModel->renameFolder($locate, $rename);
+
+            if ($request == true) {
+                $this->response([
+                    'status' => TRUE,
+                    'message' => 'Dossier renommer'
+                ], REST_Controller::HTTP_ACCEPTED);
+            } else {
+                $this->response([
+                    'status' => FALSE,
+                    'message' => 'Erreur'
+                ], REST_Controller::HTTP_UNAUTHORIZED);
+            }
+        }
     }
 
     /**
@@ -281,20 +294,26 @@ class SupFile extends REST_Controller {
         $path = $this->post("path");
         $rename = $this->post("rename");
 
+        $exist = $this->SupFileModel->checkfileExist($rename);
 
-        $request = $this->SupFileModel->renameFile($locate, $rename);
-        if ($request == true)
+
+        if ($exist == true)
         {
-            $this->response([
-                'status' => TRUE,
-                'message' => 'Fichier renomer'
-            ], REST_Controller::HTTP_ACCEPTED);
+            $this->response('Existe déja', REST_Controller::HTTP_UNAUTHORIZED);
         }
-        else{
-            $this->response([
-                'status' => FALSE,
-                'message' => 'Erreur'
-            ], REST_Controller::HTTP_UNAUTHORIZED);
+        else {
+            $request = $this->SupFileModel->renameFile($locate, $rename);
+            if ($request == true) {
+                $this->response([
+                    'status' => TRUE,
+                    'message' => 'Fichier renomer'
+                ], REST_Controller::HTTP_ACCEPTED);
+            } else {
+                $this->response([
+                    'status' => FALSE,
+                    'message' => 'Erreur'
+                ], REST_Controller::HTTP_UNAUTHORIZED);
+            }
         }
     }
 
@@ -318,12 +337,13 @@ class SupFile extends REST_Controller {
             str_replace('/','\\',$path) .
         $locate . '.' . $extFile;
 
+        $link = $this->SupFileModel->getLinkImage($locate);
+
         //$data = force_download($fileDownload, NULL);
-        $file_content = file_get_contents($fileDownload);
+        $blob = file_get_contents($fileDownload);
+       // $blob = base64_encode($blob);
 
-        print_r($file_content);
-
-        //print_r($fileDownload);
+        print_r($blob);
     }
 
     /**
@@ -365,9 +385,21 @@ class SupFile extends REST_Controller {
         force_download($fileDownload, NULL);*/
     }
 
-    public function share_folder()
+    public function shareFolder_post()
     {
 
+    }
+
+    public function deleteFile_post()
+    {
+        $code = $this->post("code");
+        $extFile = $this->SupFileModel->getExt($code);
+        $this->SupFileModel->deleteFile($code);
+        unlink(APPPATH . '/dataClients/' . $this->post("path") . '.' .$extFile);
+        $this->response([
+            'status' => TRUE,
+            'message' => 'Fichier supprimer'
+        ], REST_Controller::HTTP_ACCEPTED);
     }
 
     private function generateDirectory($path, $dir)

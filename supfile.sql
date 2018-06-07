@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jun 04, 2018 at 10:42 AM
+-- Generation Time: Jun 07, 2018 at 06:53 PM
 -- Server version: 5.7.21
 -- PHP Version: 5.6.35
 
@@ -88,14 +88,7 @@ CREATE TABLE IF NOT EXISTS `datafile` (
   `code` text NOT NULL,
   `ext` varchar(6) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=52 DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `datafile`
---
-
-INSERT INTO `datafile` (`id`, `id_folder`, `name`, `link`, `code`, `ext`) VALUES
-(51, 124, 'WIN_20180530_10_54_39_Pro', 'http://localhost/supFile/application/dataClients/47/files/ggkgg8c0sk8s0w0ccs0wgwg48wk8owowco0sww4k.jpg', 'ggkgg8c0sk8s0w0ccs0wgwg48wk8owowco0sww4k', 'jpg');
+) ENGINE=MyISAM AUTO_INCREMENT=85 DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -110,27 +103,21 @@ CREATE TABLE IF NOT EXISTS `folders` (
   `name` text NOT NULL,
   `path` text NOT NULL,
   `locate` int(11) NOT NULL,
+  `color` varchar(100) NOT NULL,
   PRIMARY KEY (`id_folder`)
-) ENGINE=MyISAM AUTO_INCREMENT=138 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=181 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `folders`
 --
 
-INSERT INTO `folders` (`id_folder`, `id_user`, `name`, `path`, `locate`) VALUES
-(137, 47, 'titi', '8cs8w8s44sk88wks0wckswgc88c48gcc4sg0woos', 136),
-(136, 47, 'maman', 's4kogowo0g4o8844w0k80cwkskgo8oc0osos8s88', 124),
-(135, 48, 'mama', '0cg4s8s44sgksws0so8ww004cws88o48sw40kgs8', 133),
-(133, 48, 'tata', 'k8k88ccww4s8gcg0kgkscw0o4kks8o8swwog400w', 131),
-(134, 48, 'fati', 'sk0wo888kwgk8w8o8cs8kgk48w8cos4gsc0o80kw', 133),
-(131, 48, 'home', 'home', 0),
-(132, 48, 'sofiane', 'k8swso880oswg0c8gc8cc4c40k4480gwkswskcc8', 131),
-(130, 47, 'yassine', '4ckoocogsg80co8w0gosgck8kkccccgkwwcwkswc', 129),
-(129, 47, 'titi', 'w4sw8kosksgsoo444c84g4c88w08csss0s04s8g8', 126),
-(128, 47, 'tata', 'oosss0cg0g8s8k40ckookcwckk48w088cc4cgwgc', 126),
-(126, 47, 'tata', 'cwk04k0s04ckk08skg80w8sokkkco8wcw4g4swk4', 124),
-(127, 47, 'salut', 'cs84wok8ss0ksw4c08ck84wsss8wgwgccgo0kwc4', 124),
-(124, 47, 'home', 'home', 0);
+INSERT INTO `folders` (`id_folder`, `id_user`, `name`, `path`, `locate`, `color`) VALUES
+(177, 47, 'tim', 'gsg8o04wcgokss80sg0socgssk4go0c80g80gkc0', 124, 'null'),
+(173, 47, 'edeode', 'gw80g4gco8sww4kocso44o0cow44kc4gks4cw8cw', 172, 'null'),
+(124, 47, 'home', 'home', 0, 'null'),
+(178, 47, 'mael', '80k4wo0w4cc8wwgk4wkk0gsogs4sc4wkkcs48k4c', 177, 'null'),
+(179, 47, 'mdr', '8so0wskc4kog4o8c88sk44o0c0c04gcswsk4c44s', 124, 'null'),
+(180, 47, 'lolo', 'wsoso4cwo8cowgc0ccswgwsssgs4o8co4k44cgow', 124, 'red');
 
 -- --------------------------------------------------------
 

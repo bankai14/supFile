@@ -83,6 +83,90 @@ class SupFile extends REST_Controller {
         $this->set_response($data, REST_Controller::HTTP_ACCEPTED);
     }
 
+    public function sizeFiles_post()
+    {
+        $path = $this->post("path");
+        $size = 0;
+        foreach (glob(rtrim(APPPATH . '/dataClients/' . $path . "files/", '/').'/*', GLOB_NOSORT) as $each) {
+            $size += is_file($each) ? filesize($each) : folderSize($each);
+        }
+        $this->set_response($this->GetSizeName($size), REST_Controller::HTTP_ACCEPTED);
+    }
+
+    private function GetSizeName($octet)
+    {
+        // Array contenant les differents unités
+        $unite = array('octet','ko','mo','go');
+
+        if ($octet < 1000) // octet
+        {
+            return $octet.$unite[0];
+        }
+        else
+        {
+            if ($octet < 1000000) // ko
+            {
+                $ko = round($octet/1024,2);
+                return $ko.$unite[1];
+            }
+            else // Mo ou Go
+            {
+                if ($octet < 1000000000) // Mo
+                {
+                    $mo = round($octet/(1024*1024),2);
+                    return $mo.$unite[2];
+                }
+                else // Go
+                {
+                    $go = round($octet/(1024*1024*1024),2);
+                    return $go.$unite[3];
+                }
+            }
+        }
+    }
+
+    public function changePassword_post()
+    {
+        $key = $this->post('key');
+
+        if ($this->_key_exists($key)) {
+            $id_user = $this->post("id_user");
+            $password = hash("sha256", $this->post("password"));
+            $newPassword = hash("sha256", $this->post("newPassword"));
+
+            $resp = $this->SupFileModel->changePassword($id_user, $password, $newPassword);
+
+            if ($resp['exist'] == true) {
+                $this->set_response($resp, REST_Controller::HTTP_ACCEPTED);
+            } else {
+                $this->set_response($resp, REST_Controller::HTTP_UNAUTHORIZED);
+            }
+        }
+        else{
+            $this->set_response("Bad Token", REST_Controller::HTTP_UNAUTHORIZED);
+        }
+    }
+
+    public function changeColor_post()
+    {
+        $color = $this->post("color");
+        $locate = $this->post("locate");
+
+        $request = $this->SupFileModel->changeColor($color, $locate);
+
+        if ($request == true) {
+            $this->response([
+                'status' => TRUE,
+                'message' => 'Couleur changée'
+            ], REST_Controller::HTTP_ACCEPTED);
+        } else {
+            $this->response([
+                'status' => FALSE,
+                'message' => 'Erreur'
+            ], REST_Controller::HTTP_UNAUTHORIZED);
+        }
+    }
+
     /**
      * Créer un fichier
      *
@@ -154,7 +238,6 @@ class SupFile extends REST_Controller {
                     $this->set_response("Fichier créer", REST_Controller::HTTP_ACCEPTED);
                 }
                 else{
-                    print_r("lol");
                     $this->set_response("Dossier existe pas", REST_Controller::HTTP_UNAUTHORIZED);
                 }
             }
@@ -190,7 +273,8 @@ class SupFile extends REST_Controller {
                 'id_user' => $id_user,
                 'nameFolder' => $nameFolder,
                 'pathLink' => $pathLink,
-                'idLocate' => $idLocate);
+                'idLocate' => $idLocate,
+                'color' => "null");
 
             $this->set_response($data, REST_Controller::HTTP_ACCEPTED);
         }
@@ -414,18 +498,14 @@ class SupFile extends REST_Controller {
     {
         $code = $this->post("code");
         $this->SupFileModel->deleteFolder($code);
-
-
         $path =  $this->post("path");
 
         $this->delTree(APPPATH . '/dataClients/' . str_replace('/', '\\', $path) . '\\' . $this->post("folder"));
-        //rmdir();
 
-        //$this->delTree(APPPATH . '/dataClients/' . $this->post("path"));
 
         $this->response([
             'status' => TRUE,
-            'message' => 'Dossier supprimer'
+            'message' => "Dossier supprimer"
         ], REST_Controller::HTTP_ACCEPTED);
     }
 

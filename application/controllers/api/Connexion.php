@@ -50,8 +50,6 @@ class Connexion extends REST_Controller {
 
     }
 
-
-
     private function _key_exists($key)
     {
         return $this->rest->db

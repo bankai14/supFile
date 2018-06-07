@@ -15,9 +15,43 @@ class SupFileModel extends CI_Model
           'id_user'=> $id_user,
           'name'=> $name,
           'path'=> $path,
-          'locate' => $locate);
+          'locate' => $locate,
+          'color' => "null");
 
       $this->db->insert('folders', $data);
+  }
+
+  function changePassword($id_user, $password, $newPassword)
+  {
+      $this->db->where('id_user', $id_user);
+      $this->db->where('password', $password);
+      $q = $this->db->get('users');
+      if($q->num_rows()>0)
+      {
+          $this->db->set('password', $newPassword);
+          $this->db->where('id_user', $id_user);
+          $this->db->update('users');
+          $resp = array(
+              'exist'=> true,
+              'info'=> "changePassword");
+          return $resp;
+      }
+      else{
+          $resp = array(
+              'exist'=> false);
+          return $resp;
+      }
+  }
+
+  function changeColor($color, $path)
+  {
+      $this->db->set('color', $color);
+      $this->db->where('path', $path);
+      $this->db->update('folders');
+      if ($this->db->affected_rows() > 0)
+          return TRUE;
+      else
+          return FALSE;
   }
 
     function addFile($data)
@@ -129,6 +163,13 @@ class SupFileModel extends CI_Model
         $this->db->where('code', $code);
         $this->db->delete('datafile');
     }
+
+    function deleteFiles($idDirectory)
+    {
+        $this->db->where('id_folder', $idDirectory);
+        $this->db->delete('datafile');
+    }
+
 
     function deleteFolder($code)
     {

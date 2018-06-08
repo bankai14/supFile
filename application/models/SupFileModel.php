@@ -62,7 +62,7 @@ class SupFileModel extends CI_Model
     // récupère les dossier qui se trouve dans un dossier
     function getFoldersOnFolder($id_folder)
     {
-        $this->db->select(array('name', 'path'))
+        $this->db->select(array('name', 'path', 'color'))
             ->where('locate', $id_folder)
             ->get_compiled_select('folders', FALSE);
 
@@ -73,8 +73,7 @@ class SupFileModel extends CI_Model
     // récupère le nom du dossier grace au path
   function getFolders($id_user, $idFolder)
   {
-      $this->db->select(array('name', 'path
-      '))
+      $this->db->select(array('name', 'path', 'color'))
           ->where('id_user', $id_user)
           ->where('locate', $idFolder)
           ->get_compiled_select('folders', FALSE);
